@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>국악 부루마불: 나의 운명 악기 찾기</title>
+    <style>
+        /* 스타일은 기존과 동일하게 유지 */
+        body {
+            font-family: 'Gowun Dodum', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 3px solid #2c3e50;
+        }
+        h1 { color: #2c3e50; font-size: 24px; margin-bottom: 10px; }
+        .progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            height: 10px;
+        }
+        .progress {
+            width: 0%;
+            height: 100%;
+            background-color: #3498db;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        .question { font-size: 18px; margin-bottom: 30px; font-weight: bold; min-height: 60px;}
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #fff;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn:hover { background-color: #3498db; color: white; }
+        .result-box { display: none; }
+        .result-title { font-size: 28px; color: #e74c3c; margin: 20px 0; font-weight: bold; }
+        .result-desc { font-size: 16px; line-height: 1.6; margin-bottom: 20px; text-align: left; background: #f9f9f9; padding: 15px; border-radius: 10px;}
+        .restart-btn { background-color: #2c3e50; color: white; border: none; }
+        .tag { display: inline-block; background: #eee; padding: 5px 10px; border-radius: 15px; font-size: 12px; margin-bottom: 10px; color: #555;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="intro">
+        <h1>🎲 국악 부루마불 🎲</h1>
+        <p>주사위를 던져 도착한 이곳!<br>당신에게 딱 맞는 국악기는 무엇일까요?</p>
+        <br>
+        <button class="btn" style="background-color: #2c3e50; color: white;" onclick="startTest()">테스트 시작하기</button>
+    </div>
+
+    <div id="test" style="display: none;">
+        <div class="progress-bar"><div class="progress" id="progress"></div></div>
+        <div class="question" id="question">질문이 여기에 나옵니다.</div>
+        <button class="btn" id="btnA" onclick="nextQuestion(1)">선택지 A</button>
+        <button class="btn" id="btnB" onclick="nextQuestion(0)">선택지 B</button>
+    </div>
+
+    <div id="result" class="result-box">
+        <p>당신의 운명 악기는?</p>
+        <div class="result-title" id="resultName">악기 이름</div>
+        <div class="tag" id="resultTag">#해시태그 #성격</div>
+        <div class="result-desc" id="resultDesc">설명</div>
+        <button class="btn restart-btn" onclick="location.reload()">다시 하기</button>
+        <p style="font-size: 12px; color: #888;">*결과 화면을 캡처해서 운영진에게 보여주세요!</p>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            q: "Q1. 동아리박람회 부루마불 판! 주사위를 던질 차례다. 당신의 스타일은?",
+            a: "모두가 날 보고 있어! 화려한 제스처로 힘차게 던진다. (무대체질)",
+            b: "조용히 손목 스냅을 이용해 원하는 숫자를 노린다. (신중함)"
+        },
+        {
+            q: "Q2. 무인도(수업)에 갇혔다! 탈출하기 위해 당신이 할 행동은?",
+            a: "옆 사람과 떠들거나 교수님께 질문하며 존재감을 알린다.",
+            b: "조용히 혼자만의 상상에 빠지거나 책을 읽는다."
+        },
+        {
+            q: "Q3. 황금열쇠 카드를 뽑았다! '장기자랑' 미션이 나왔다면?",
+            a: "이 구역의 주인공은 나! 망설임 없이 노래나 춤을 춘다.",
+            b: "아... 부끄러운데... 쭈뼛거리거나 벌금을 내고 피한다."
+        },
+        {
+            q: "Q4. 국악 동아리에 들어온다면 기대하는 모습은?",
+            a: "무대 중앙에서 관객을 압도하는 화려한 솔로!",
+            b: "다른 악기들과 어우러져 멋진 화음을 만드는 합주!"
+        },
+        // [NEW] 5번째 질문 추가: 소리 취향 (감성 vs 청아)
+        {
+            q: "Q5. 당신이 더 끌리는 '소리의 질감'은?",
+            a: "가슴을 긁는 듯한 애절하고 거친 소리 (한, 슬픔)",
+            b: "옥구슬 굴러가는 듯한 맑고 청아한 소리 (흥, 우아함)"
+        }
+    ];
+
+    // 결과 데이터 세분화
+    const results = {
+        "E_Solo": { name: "태평소 / 민요", tag: "#핵인싸 #성량폭발 #무대장악", desc: "당신은 타고난 무대 체질! 어디서나 주목받는 것을 즐기는 당신에겐, 국악기 중 가장 큰 소리를 내는 '태평소'나 관객과 소통하는 '민요'가 딱입니다. 시원하게 질러보세요!" },
+        
+        "E_Harmony": { name: "피리 / 타악", tag: "#리더십 #분위기메이커 #중심", desc: "당신은 전체적인 흐름을 주도하는 리더 스타일! 멜로디의 중심을 잡는 '피리'나, 음악의 심장 박동을 담당하는 '타악(장구/북)'이 어울립니다. 동아리의 기둥이 되어주세요!" },
+        
+        "I_Solo": { name: "대금 / 거문고", tag: "#선비정신 #카리스마 #마이웨이", desc: "당신은 겉은 차분하지만 속은 깊은 '외유내강' 스타일. 시원시원한 소리의 '대금'이나, 선비들이 사랑했던 악기 '거문고'가 당신의 기품을 더해줄 거예요." },
+        
+        // [NEW] I_Harmony를 두 그룹으로 분리
+        "I_Harmony_Rough": { name: "해금 / 아쟁", tag: "#감성 #음색깡패 #반전매력", desc: "당신은 남들과 다른 독보적인 감성을 지녔군요. 두 줄 사이에 말총을 넣어 켜는 '해금'과 개나리 활대로 현을 켜는 '아쟁'은 가슴을 파고드는 애절한 소리가 매력적입니다. 당신의 섬세한 감정을 표현해 보세요." },
+        
+        "I_Harmony_Clear": { name: "가야금 / 소금", tag: "#우아함 #청아함 #인기쟁이", desc: "당신은 맑고 고운 심성을 지닌 평화주의자! 12줄의 명주실이 내는 우아한 '가야금' 소리나, 대나무의 맑은 울림인 '소금'이 당신과 찰떡궁합입니다." }
+    };
+
+    let currentQ = 0;
+    let scoreE = 0; // 외향성 점수
+    let scoreSolo = 0; // 솔로/주목 점수
+    let scoreVibe = 0; // [NEW] 소리 취향 점수 (0: 청아, 1: 거칠/애절)
+
+    function startTest() {
+        document.getElementById('intro').style.display = 'none';
+        document.getElementById('test').style.display = 'block';
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const q = questions[currentQ];
+        document.getElementById('question').innerText = q.q;
+        document.getElementById('btnA').innerText = q.a;
+        document.getElementById('btnB').innerText = q.b;
+        document.getElementById('progress').style.width = ((currentQ / questions.length) * 100) + '%';
+    }
+
+    function nextQuestion(point) {
+        if (currentQ < 2) scoreE += point;      // Q1, Q2: 외향/내향
+        else if (currentQ < 4) scoreSolo += point; // Q3, Q4: 솔로/합주
+        else scoreVibe += point;                // Q5: 소리 취향 (1이면 거침/애절, 0이면 맑음)
+
+        currentQ++;
+        if (currentQ < questions.length) {
+            showQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('test').style.display = 'none';
+        document.getElementById('result').style.display = 'block';
+
+        let type = "";
+        
+        // 로직 분기점
+        if (scoreE >= 1) { // 외향형(E)
+            type = (scoreSolo >= 1) ? "E_Solo" : "E_Harmony";
+        } else { // 내향형(I)
+            if (scoreSolo >= 1) {
+                type = "I_Solo"; // 대금, 거문고 (선비)
+            } else {
+                // 여기서 Q5 결과로 한 번 더 가릅니다!
+                // scoreVibe가 1이면(A선택) -> 해금/아쟁
+                // scoreVibe가 0이면(B선택) -> 가야금/소금
+                type = (scoreVibe >= 1) ? "I_Harmony_Rough" : "I_Harmony_Clear";
+            }
+        }
+
+        const res = results[type];
+        document.getElementById('resultName').innerText = "당신에게 추천하는 악기는: \n" + res.name;
+        document.getElementById('resultTag').innerText = res.tag;
+        document.getElementById('resultDesc').innerText = res.desc;
+    }
+</script>
+
+</body>
+</html>
